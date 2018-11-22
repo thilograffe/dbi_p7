@@ -10,11 +10,15 @@ import java.sql.ResultSet;
 
 public class Start {
 	Connection con;
+	final int scaleAcc = 100000;
+	final int scaleTel = 10;
 	public static void main(String[] args) throws SQLException {
 		Start start = new Start();
 		start.connect();
-		start.dropTables();
-		start.createTables();
+		//start.dropTables();
+		//start.createTables();
+		
+		start.createSQLPreparedStatement(10);
 		start.disconnect();
 	}
 	
@@ -95,21 +99,38 @@ public class Start {
 		}
 	}
 	
-	public void createSQLPreparedStatement() {
-		System.out.println("");
-		Scanner in = new Scanner(System.in);
-		String pid = in.nextLine();
+	public void createSQLPreparedStatement(int n) {
+		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt = con.prepareStatement(
-				"");
-			stmt.setString(1, pid);
-			ResultSet rs = stmt.executeQuery();
-			
-			while (rs.next()) {
-				System.out.println(rs.getString(""));
+				"insert into branches values (?, 'AutomobileAutomobile', 0, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+
+			for(int i = 1; i <= n; i++) {
+				stmt.setInt(1, i);
+				stmt.executeUpdate();
 			}
+			stmt = con.prepareStatement(
+					"insert into accounts values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+			
+			for(int i = 1; i <= scaleAcc*n; i++) {
+				stmt.setInt(1, i);
+				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.executeUpdate();
+			}
+			
+			stmt = con.prepareStatement(
+					"insert into tellers values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+			
+			for(int i = 1; i <= scaleTel *n; i++) {
+				stmt.setInt(1, i);
+				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.executeUpdate();
+			}
+			System.out.println(System.currentTimeMillis() - start);
+			
+			
 			stmt.close();
-			rs.close();
+			
 			
 			
 		} catch (SQLException e) {
