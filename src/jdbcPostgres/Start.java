@@ -24,7 +24,7 @@ public class Start {
 	
 	public void connect() {
 		try {
-			con = DriverManager.getConnection("jdbc:postgresql:dbi_p7", "dbi", "dbi");
+			con = DriverManager.getConnection("jdbc:postgresql://192.168.122.64:5432/postgres", "postgres", "datenbank");
 			System.out.println("Verbunden!");
 		}
 		catch(SQLException e) {
