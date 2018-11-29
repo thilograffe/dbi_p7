@@ -13,13 +13,20 @@ public class Start {
 	final int scaleAcc = 100000;
 	final int scaleTel = 10;
 	final int batchSize = 10000;
+	
+	static final int mode = 	1;
+	static final int anzahl = 	50;
+	
 	public static void main(String[] args) throws SQLException {
 		Start start = new Start();
 		start.connect();
-		//start.dropTables();
-		//start.createTables();
-		
-		start.createSQLPreparedStatement(50);
+		if(mode==0) {
+			start.dropTables();
+			start.createTables();
+		}
+		else if(mode==1) {
+			start.createSQLPreparedStatement(anzahl);
+		}
 		start.disconnect();
 	}
 	
