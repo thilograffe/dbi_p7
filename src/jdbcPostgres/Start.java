@@ -102,6 +102,7 @@ public class Start {
 	public void createSQLPreparedStatement(int n) {
 		long start = System.currentTimeMillis();
 		try {
+			con.setAutoCommit(false);
 			PreparedStatement stmt = con.prepareStatement(
 				"insert into branches values (?, 'AutomobileAutomobile', 0, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
 
@@ -126,10 +127,12 @@ public class Start {
 				stmt.setInt(2, (int)(Math.random()*n)+1);
 				stmt.executeUpdate();
 			}
+			con.commit();
 			System.out.println(System.currentTimeMillis() - start);
 			
 			
 			stmt.close();
+			con.setAutoCommit(true);
 			
 			
 			
