@@ -25,6 +25,7 @@ public class Start {
 	public void connect() {
 		try {
 			con = DriverManager.getConnection("jdbc:postgresql://192.168.122.64:5432/postgres", "postgres", "datenbank");
+			con.setAutoCommit(false);
 			System.out.println("Verbunden!");
 		}
 		catch(SQLException e) {
@@ -77,7 +78,7 @@ public class Start {
 					" foreign key (accid) references accounts,\r\n" + 
 					" foreign key (tellerid) references tellers,\r\n" + 
 					" foreign key (branchid) references branches ); ");
-		
+			con.commit();
 			System.out.println("tables erstellt!");
 			stmt.close();
 			
@@ -102,29 +103,38 @@ public class Start {
 	public void createSQLPreparedStatement(int n) {
 		long start = System.currentTimeMillis();
 		try {
-			con.setAutoCommit(false);
 			PreparedStatement stmt = con.prepareStatement(
-				"insert into branches values (?, 'AutomobileAutomobile', 0, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+				"insert into branches values (?, ?, ?, ?)");
 
 			for(int i = 1; i <= n; i++) {
 				stmt.setInt(1, i);
+				stmt.setString(2, "AutomobileAutomobile");
+				stmt.setInt(3, 0);
+				stmt.setString(4, "jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 				stmt.executeUpdate();
 			}
+			stmt.close();
 			stmt = con.prepareStatement(
-					"insert into accounts values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+					"insert into accounts values (?, ?, ?, ?, ?)");
 			
 			for(int i = 1; i <= scaleAcc*n; i++) {
 				stmt.setInt(1, i);
-				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.setString(2, "AutomobileAutomobile");
+				stmt.setInt(3, 0);
+				stmt.setInt(4, (int)(Math.random()*n)+1);
+				stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 				stmt.executeUpdate();
 			}
-			
+			stmt.close();
 			stmt = con.prepareStatement(
-					"insert into tellers values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+					"insert into tellers values (?, ?, ?, ?, ?)");
 			
 			for(int i = 1; i <= scaleTel *n; i++) {
 				stmt.setInt(1, i);
-				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.setString(2, "AutomobileAutomobile");
+				stmt.setInt(3, 0);
+				stmt.setInt(4, (int)(Math.random()*n)+1);
+				stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 				stmt.executeUpdate();
 			}
 			con.commit();
@@ -132,7 +142,6 @@ public class Start {
 			
 			
 			stmt.close();
-			con.setAutoCommit(true);
 			
 			
 			
