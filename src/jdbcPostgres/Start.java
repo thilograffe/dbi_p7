@@ -25,7 +25,7 @@ public class Start {
 			start.createTables();
 		}
 		else if(mode==1) {
-			start.createSQLPreparedStatement(anzahl);
+			start.insertIntoNtpsDatabase(anzahl);
 		}
 		start.disconnect();
 	}
@@ -108,7 +108,7 @@ public class Start {
 		}
 	}
 	
-	public void createSQLPreparedStatement(int n) {
+	public void insertIntoNtpsDatabase(int n) {
 		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt = con.prepareStatement(
