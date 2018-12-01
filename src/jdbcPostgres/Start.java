@@ -18,19 +18,18 @@ public class Start {
 	static final int anzahl = 	50;
 	
 	public static void main(String[] args) throws SQLException {
-		Start start = new Start();
-		start.connect();
+		connect();
 		if(mode==0) {
-			start.dropTables();
-			start.createTables();
+			dropTables();
+			createTables();
 		}
 		else if(mode==1) {
-			start.insertIntoNtpsDatabase(anzahl);
+			insertIntoNtpsDatabase(anzahl);
 		}
-		start.disconnect();
+		disconnect();
 	}
 	
-	public void connect() {
+	public static void connect() {
 		try {
 			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
 			con.setAutoCommit(false);
@@ -41,7 +40,7 @@ public class Start {
 		}
 	}
 	
-	public void disconnect() {
+	public static void disconnect() {
 		try {
 			con.close();
 			System.out.println("Disconnected!");
@@ -51,7 +50,7 @@ public class Start {
 		}
 	}
 	
-	public void createTables() {
+	public static void createTables() {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("create table branches\r\n" + 
@@ -95,7 +94,7 @@ public class Start {
 		}
 	}
 	
-	public void dropTables() {
+	public static void dropTables() {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("drop table if exists history, accounts, branches, tellers;");
@@ -108,7 +107,7 @@ public class Start {
 		}
 	}
 	
-	public void insertIntoNtpsDatabase(int n) {
+	public static void insertIntoNtpsDatabase(int n) {
 		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt = con.prepareStatement(
