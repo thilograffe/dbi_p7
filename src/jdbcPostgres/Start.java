@@ -8,11 +8,11 @@ import java.sql.PreparedStatement;
 
 public class Start {
 	static Connection con;
-	final static int scaleAcc = 100000;
-	final static int scaleTel = 10;
-	final static int batchSize = 10000;
+	static final int scaleAcc = 100000;
+	static final int scaleTel = 10;
+	static final int batchSize = 10000;
 	
-	//Mode wird auf 0 gesetzt um die Datenbank neu zu erzeugen und gegebenenfalls vorher zu löschen. Bei 1 wird die ntps-Datenbank erzeugt.
+	//Mode wird auf 0 gesetzt um die Datenbank neu zu erzeugen und gegebenenfalls vorher zu löschen. Bei 1 wird die ntps-Datenbank gefüllt.
 	static final int mode = 	1;
 	
 	//Anzahl ist unser Skalierungsfaktor und wird bei der Methode insertIntoNtpsDatabase(anzahl) als parameter übergeben.
@@ -20,10 +20,13 @@ public class Start {
 	
 	public static void main(String[] args) throws SQLException {
 		connect();
+		
+		//mode==0 : Das ist der Modus für das Löschen und Erstellen der Tabellen.
 		if(mode==0) {
 			dropTables();
 			createTables();
 		}
+		//mode==1 : Das ist der Modus für das Füllen der Tabellen.
 		else if(mode==1) {
 			insertIntoNtpsDatabase(anzahl);
 		}
@@ -53,7 +56,7 @@ public class Start {
 		}
 	}
 	
-	//Inizialisierung der Datenbank. Tabellen werden angelegt und gefüllt.
+	//Inizialisierung der Datenbank. Tabellen werden angelegt.
 	public static void createTables() {
 		try {
 			Statement stmt = con.createStatement();
@@ -116,6 +119,7 @@ public class Start {
 	public static void insertIntoNtpsDatabase(int n) {
 		long start = System.currentTimeMillis();
 		try {
+			//Tabelle branches wird gefüllt.
 			PreparedStatement stmt = con.prepareStatement(
 				"insert into branches values (?, ?, ?, ?)");
 
@@ -126,13 +130,13 @@ public class Start {
 				stmt.setString(4, "jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 				stmt.addBatch();
 			}
+			//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
 			stmt.executeBatch();
 			stmt.close();
+			
+			//Tabelle accounts wird gefüllt.
 			stmt = con.prepareStatement(
 					"insert into accounts values (?, ?, ?, ?, ?)");
-			for(int j=0;j<batchSize;j++) {
-				
-			}
 			
 			for(int i = 0; i < (scaleAcc*n)/batchSize; i++) {
 				for(int j=0;j<batchSize;j++) {
@@ -146,6 +150,8 @@ public class Start {
 				stmt.executeBatch();
 			}
 			stmt.close();
+			
+			//Tabelle tellers wird gefüllt.
 			stmt = con.prepareStatement(
 					"insert into tellers values (?, ?, ?, ?, ?)");
 			
@@ -157,12 +163,18 @@ public class Start {
 				stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 				stmt.addBatch();
 			}
+			//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
 			stmt.executeBatch();
+			stmt.close();
+			
+			//Tabelle history wird nicht gefüllt.
+			
+			//Es wird einmal final ein commit ausgeführt.
 			con.commit();
+			
+			//Das Benchmark-Ergebnis wird ausgegeben.
 			System.out.println(System.currentTimeMillis() - start);
 			
-			stmt.close();
-		
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
