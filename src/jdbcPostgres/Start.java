@@ -4,17 +4,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class Start {
-	Connection con;
-	final int scaleAcc = 100000;
-	final int scaleTel = 10;
-	final int batchSize = 10000;
+	static Connection con;
+	final static int scaleAcc = 100000;
+	final static int scaleTel = 10;
+	final static int batchSize = 10000;
 	
+	//Mode wird auf 0 gesetzt um die Datenbank neu zu erzeugen und gegebenenfalls vorher zu löschen. Bei 1 wird die ntps-Datenbank erzeugt.
 	static final int mode = 	1;
+	
+	//Anzahl ist unser Skalierungsfaktor und wird bei der Methode insertIntoNtpsDatabase(anzahl) als parameter übergeben.
 	static final int anzahl = 	50;
 	
 	public static void main(String[] args) throws SQLException {
@@ -29,6 +30,7 @@ public class Start {
 		disconnect();
 	}
 	
+	//Verbindungsaufbau mit dem Datenbankserver.
 	public static void connect() {
 		try {
 			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
@@ -40,6 +42,7 @@ public class Start {
 		}
 	}
 	
+	//Verbindungsabbruch mit dem Datenbankserver.
 	public static void disconnect() {
 		try {
 			con.close();
@@ -50,6 +53,7 @@ public class Start {
 		}
 	}
 	
+	//Inizialisierung der Datenbank. Tabellen werden angelegt und gefüllt.
 	public static void createTables() {
 		try {
 			Statement stmt = con.createStatement();
@@ -94,6 +98,7 @@ public class Start {
 		}
 	}
 	
+	//Löschen der Datenbank. Bereits existierende Tabellen werden gelöscht. 
 	public static void dropTables() {
 		try {
 			Statement stmt = con.createStatement();
@@ -107,6 +112,7 @@ public class Start {
 		}
 	}
 	
+	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
 	public static void insertIntoNtpsDatabase(int n) {
 		long start = System.currentTimeMillis();
 		try {
@@ -155,10 +161,8 @@ public class Start {
 			con.commit();
 			System.out.println(System.currentTimeMillis() - start);
 			
-			
 			stmt.close();
-			
-			
+		
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
