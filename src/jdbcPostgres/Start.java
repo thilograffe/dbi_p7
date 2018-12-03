@@ -119,10 +119,18 @@ public class Start {
 	public static void insertIntoNtpsDatabase(int n) {
 		long start = System.currentTimeMillis();
 		try {
-			//Tabelle branches wird gefüllt.
+			//Table triggers werden ausgeschaltet
 			PreparedStatement stmt = con.prepareStatement(
-				"insert into branches values (?, ?, ?, ?)");
+				"ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
+				"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
+				"ALTER TABLE tellers DISABLE TRIGGER ALL;");
+			stmt.executeUpdate();
+			stmt.close();
 
+			//Tabelle branches wird gefüllt.
+			stmt = con.prepareStatement(
+					"insert into branches values (?,?,?,?)");
+			
 			for(int i = 1; i <= n; i++) {
 				stmt.setInt(1, i);
 				stmt.setString(2, "AutomobileAutomobile");
@@ -169,6 +177,14 @@ public class Start {
 			
 			//Tabelle history wird nicht gefüllt.
 			
+			//Table triggers werden wieder eingeschaltet
+			stmt = con.prepareStatement(
+					"ALTER TABLE accounts ENABLE TRIGGER ALL;\r\n" + 
+					"ALTER TABLE branches ENABLE TRIGGER ALL;\r\n" + 
+					"ALTER TABLE tellers ENABLE TRIGGER ALL;");
+			stmt.executeUpdate();
+			stmt.close();
+				
 			//Es wird einmal final ein commit ausgeführt.
 			con.commit();
 			
