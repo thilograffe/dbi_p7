@@ -12,7 +12,7 @@ public class Start {
 	Connection con;
 	final int scaleAcc = 100000;
 	final int scaleTel = 10;
-	final int batchSize = 10000;
+	//final int batchSize = 10000;
 	public static void main(String[] args) throws SQLException {
 		Start start = new Start();
 		start.connect();
@@ -25,7 +25,7 @@ public class Start {
 	
 	public void connect() {
 		try {
-			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
+			con = DriverManager.getConnection("jdbc:postgresql://192.168.122.64:5432/postgres", "postgres", "datenbank");
 			con.setAutoCommit(false);
 			System.out.println("Verbunden!");
 		}
@@ -118,21 +118,16 @@ public class Start {
 			stmt.close();
 			stmt = con.prepareStatement(
 					"insert into accounts values (?, ?, ?, ?, ?)");
-			for(int j=0;j<batchSize;j++) {
-				
-			}
 			
-			for(int i = 0; i < (scaleAcc*n)/batchSize; i++) {
-				for(int j=0;j<batchSize;j++) {
-					stmt.setInt(1, i*batchSize+j+1);
-					stmt.setString(2, "AutomobileAutomobile");
-					stmt.setInt(3, 0);
-					stmt.setInt(4, (int)(Math.random()*n)+1);
-					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
-					stmt.addBatch();
-				}
-				stmt.executeBatch();
+			for(int i = 0; i < (scaleAcc*n); i++) {
+				stmt.setInt(1, i+1);
+				stmt.setString(2, "AutomobileAutomobile");
+				stmt.setInt(3, 0);
+				stmt.setInt(4, (int)(Math.random()*n)+1);
+				stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
+				stmt.addBatch();
 			}
+			stmt.executeBatch();
 			stmt.close();
 			stmt = con.prepareStatement(
 					"insert into tellers values (?, ?, ?, ?, ?)");
