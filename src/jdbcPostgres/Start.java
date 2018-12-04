@@ -4,40 +4,27 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class Start {
-	static Connection con;
-	static final int scaleAcc = 100000;
-	static final int scaleTel = 10;
-	static final int batchSize = 10000;
-	
-	//Mode wird auf 0 gesetzt um die Datenbank neu zu erzeugen und gegebenenfalls vorher zu löschen. Bei 1 wird die ntps-Datenbank gefüllt.
-	static final int mode = 	1;
-	
-	//Anzahl ist unser Skalierungsfaktor und wird bei der Methode insertIntoNtpsDatabase(anzahl) als parameter übergeben.
-	static final int anzahl = 	50;
-	
+	Connection con;
+	final int scaleAcc = 100000;
+	final int scaleTel = 10;
 	public static void main(String[] args) throws SQLException {
-		connect();
+		Start start = new Start();
+		start.connect();
+		//start.dropTables();
+		//start.createTables();
 		
-		//mode==0 : Das ist der Modus für das Löschen und Erstellen der Tabellen.
-		if(mode==0) {
-			dropTables();
-			createTables();
-		}
-		//mode==1 : Das ist der Modus für das Füllen der Tabellen.
-		else if(mode==1) {
-			insertIntoNtpsDatabase(anzahl);
-		}
-		disconnect();
+		start.createSQLPreparedStatement(10);
+		start.disconnect();
 	}
 	
-	//Verbindungsaufbau mit dem Datenbankserver.
-	public static void connect() {
+	public void connect() {
 		try {
-			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
-			con.setAutoCommit(false);
+			con = DriverManager.getConnection("jdbc:postgresql://192.168.122.64:5432/postgres", "postgres", "datenbank");
 			System.out.println("Verbunden!");
 		}
 		catch(SQLException e) {
@@ -45,8 +32,7 @@ public class Start {
 		}
 	}
 	
-	//Verbindungsabbruch mit dem Datenbankserver.
-	public static void disconnect() {
+	public void disconnect() {
 		try {
 			con.close();
 			System.out.println("Disconnected!");
@@ -56,8 +42,7 @@ public class Start {
 		}
 	}
 	
-	//Inizialisierung der Datenbank. Tabellen werden angelegt.
-	public static void createTables() {
+	public void createTables() {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("create table branches\r\n" + 
@@ -92,7 +77,7 @@ public class Start {
 					" foreign key (accid) references accounts,\r\n" + 
 					" foreign key (tellerid) references tellers,\r\n" + 
 					" foreign key (branchid) references branches ); ");
-			con.commit();
+		
 			System.out.println("tables erstellt!");
 			stmt.close();
 			
@@ -101,12 +86,11 @@ public class Start {
 		}
 	}
 	
-	//Löschen der Datenbank. Bereits existierende Tabellen werden gelöscht. 
-	public static void dropTables() {
+	public void dropTables() {
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("drop table if exists history, accounts, branches, tellers;");
-			con.commit();
+		
 			System.out.println("gedroppped!");
 			stmt.close();
 			
@@ -115,81 +99,38 @@ public class Start {
 		}
 	}
 	
-	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
-	public static void insertIntoNtpsDatabase(int n) {
+	public void createSQLPreparedStatement(int n) {
 		long start = System.currentTimeMillis();
 		try {
-			//Table triggers werden ausgeschaltet
 			PreparedStatement stmt = con.prepareStatement(
-				"ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
-				"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
-				"ALTER TABLE tellers DISABLE TRIGGER ALL;");
-			stmt.executeUpdate();
-			stmt.close();
+				"insert into branches values (?, 'AutomobileAutomobile', 0, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
 
-			//Tabelle branches wird gefüllt.
-			stmt = con.prepareStatement(
-					"insert into branches values (?,?,?,?)");
-			
 			for(int i = 1; i <= n; i++) {
 				stmt.setInt(1, i);
-				stmt.setString(2, "AutomobileAutomobile");
-				stmt.setInt(3, 0);
-				stmt.setString(4, "jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
-				stmt.addBatch();
+				stmt.executeUpdate();
 			}
-			//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
-			stmt.executeBatch();
-			stmt.close();
-			
-			//Tabelle accounts wird gefüllt.
 			stmt = con.prepareStatement(
-					"insert into accounts values (?, ?, ?, ?, ?)");
+					"insert into accounts values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
 			
-			for(int i = 0; i < (scaleAcc*n)/batchSize; i++) {
-				for(int j=0;j<batchSize;j++) {
-					stmt.setInt(1, i*batchSize+j+1);
-					stmt.setString(2, "AutomobileAutomobile");
-					stmt.setInt(3, 0);
-					stmt.setInt(4, (int)(Math.random()*n)+1);
-					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
-					stmt.addBatch();
-				}
-				stmt.executeBatch();
+			for(int i = 1; i <= scaleAcc*n; i++) {
+				stmt.setInt(1, i);
+				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.executeUpdate();
 			}
-			stmt.close();
 			
-			//Tabelle tellers wird gefüllt.
 			stmt = con.prepareStatement(
-					"insert into tellers values (?, ?, ?, ?, ?)");
+					"insert into tellers values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
 			
 			for(int i = 1; i <= scaleTel *n; i++) {
 				stmt.setInt(1, i);
-				stmt.setString(2, "AutomobileAutomobile");
-				stmt.setInt(3, 0);
-				stmt.setInt(4, (int)(Math.random()*n)+1);
-				stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
-				stmt.addBatch();
+				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.executeUpdate();
 			}
-			//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
-			stmt.executeBatch();
-			stmt.close();
-			
-			//Tabelle history wird nicht gefüllt.
-			
-			//Table triggers werden wieder eingeschaltet
-			stmt = con.prepareStatement(
-					"ALTER TABLE accounts ENABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE branches ENABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE tellers ENABLE TRIGGER ALL;");
-			stmt.executeUpdate();
-			stmt.close();
-				
-			//Es wird einmal final ein commit ausgeführt.
-			con.commit();
-			
-			//Das Benchmark-Ergebnis wird ausgegeben.
 			System.out.println(System.currentTimeMillis() - start);
+			
+			
+			stmt.close();
+			
 			
 			
 		} catch (SQLException e) {
