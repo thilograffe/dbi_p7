@@ -103,27 +103,39 @@ public class Start {
 		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt = con.prepareStatement(
-				"insert into branches values (?, 'AutomobileAutomobile', 0, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+				"insert into branches values (?, ?, ?, ?)");
 
 			for(int i = 1; i <= n; i++) {
 				stmt.setInt(1, i);
+				stmt.setString(2, 'AutomobileAutomobile');
+				stmt.setInt(3, 0);
+				stmt.setString(4, 'jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn');
+				
 				stmt.executeUpdate();
 			}
 			stmt = con.prepareStatement(
-					"insert into accounts values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+					"insert into accounts values (?, ?, ?, ?, ?)");
 			
 			for(int i = 1; i <= scaleAcc*n; i++) {
 				stmt.setInt(1, i);
-				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.setString(2, 'AutomobileAutomobile');
+				smtm.setInt(3, 0);
+				stmt.setInt(4, (int)(Math.random()*n)+1);
+				stmt.setString(5, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn');
+				
 				stmt.executeUpdate();
 			}
 			
 			stmt = con.prepareStatement(
-					"insert into tellers values (?, 'AutomobileAutomobile', 0, ?, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn')");
+					"insert into tellers values (?, ?, ?, ?, ?)");
 			
 			for(int i = 1; i <= scaleTel *n; i++) {
 				stmt.setInt(1, i);
-				stmt.setInt(2, (int)(Math.random()*n)+1);
+				stmt.setString(2, 'AutomobileAutomobile');
+				smtm.setInt(3, 0);
+				stmt.setInt(4, (int)(Math.random()*n)+1);
+				stmt.setString(5, 'lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn');
+				
 				stmt.executeUpdate();
 			}
 			System.out.println(System.currentTimeMillis() - start);
