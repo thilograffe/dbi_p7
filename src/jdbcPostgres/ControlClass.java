@@ -22,6 +22,8 @@ public class ControlClass {
 				String str3 = scan.nextLine();
 				System.out.println("Wie viele Threads?)");
 				String str4 = scan.nextLine();
+				long startZeit = System.currentTimeMillis(); 
+				System.out.println("Allgemeiner Start: "+(System.currentTimeMillis() - startZeit)); 
 				for(int i=0;i<stringtoint(str4);i++) {
 					new Thread(new Start(1,stringtoint(str2),stringtoint(str3),stringtoint(str4),i)).start();
 					System.out.println("Thread "+i+" ist gestartet.");

@@ -240,7 +240,9 @@ public class Start implements Runnable{
 			con.commit();
 			
 			//Das Benchmark-Ergebnis wird ausgegeben.
+			System.out.println("Thread "+threadIndex+" ist fertig @"+System.currentTimeMillis());
 			System.out.println(System.currentTimeMillis() - start);
+			
 			
 			
 		} catch (SQLException e) {
