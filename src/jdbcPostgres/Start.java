@@ -60,6 +60,7 @@ public class Start implements Runnable{
 				"ALTER TABLE tellers DISABLE TRIGGER ALL;");
 			stmt.executeUpdate();
 			stmt.close();
+			con.commit();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
