@@ -70,7 +70,7 @@ public class Start implements Runnable{
 	public void run(){
 		System.out.println("Thread "+threadIndex+" ist wirklich gestartet.");
 		connect();
-		insertIntoNtpsDatabase();
+		table(2);
 		disconnect();
 	}
 	
@@ -173,11 +173,11 @@ public class Start implements Runnable{
 	}
 	
 	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
-	public void insertIntoNtpsDatabase() {
+	public void table(int tableNumber) {
 		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt=null;
-			if(threadIndex==0) {
+			if(tableNumber==1) {
 				//Tabelle branches wird gefüllt.
 				stmt = con.prepareStatement("insert into branches values (?,?,?,?)");
 			
@@ -192,24 +192,25 @@ public class Start implements Runnable{
 				stmt.executeBatch();
 				stmt.close();
 			}
+			if(tableNumber==2) {
 			//Tabelle accounts wird gefüllt.
-			stmt = con.prepareStatement(
-					"insert into accounts values (?, ?, ?, ?, ?)");
+				stmt = con.prepareStatement("insert into accounts values (?, ?, ?, ?, ?)");
 			
-			for(int i = 0; i < (SCALEACC*n)/threadCount/batchSize; i++) {
-				for(int j=0;j<batchSize;j++) {
-					stmt.setInt(1, i*batchSize+j+(threadIndex*(SCALEACC*n/threadCount))+1);
-					stmt.setString(2, "AutomobileAutomobile");
-					stmt.setInt(3, 0);
-					stmt.setInt(4, (int)(Math.random()*n)+1);
-					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
-					stmt.addBatch();
+				for(int i = 0; i < (SCALEACC*n)/threadCount/batchSize; i++) {
+					for(int j=0;j<batchSize;j++) {
+						stmt.setInt(1, i*batchSize+j+(threadIndex*(SCALEACC*n/threadCount))+1);
+						stmt.setString(2, "AutomobileAutomobile");
+						stmt.setInt(3, 0);
+						stmt.setInt(4, (int)(Math.random()*n)+1);
+						stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
+						stmt.addBatch();
+					}
+					stmt.executeBatch();
 				}
-				stmt.executeBatch();
+				stmt.close();
 			}
-			stmt.close();
 			//Tabelle history wird nicht gefüllt.
-			if(threadIndex==0) {
+			if(tableNumber==3) {
 				//Tabelle tellers wird gefüllt.
 				stmt = con.prepareStatement("insert into tellers values (?, ?, ?, ?, ?)");
 			
