@@ -1,3 +1,4 @@
-/metadata/
+.metadata/
 /.recommenders/
-/bin/
+bin/
+csv/
