@@ -12,13 +12,13 @@ public class Start implements Runnable{
 	static final int SCALETEL = 10;		 //Faktor für die Tabelle tellers
 	
 	//Skalierungsfaktor
-	private int n = 10;
+	static private int n = 10;
 	
 	//Größe der Bündel
-	private int batchSize = 10000;
+	static private int batchSize = 10000;
 	
 	//Anzahl Threads
-	private int threadCount= 4;
+	static private int threadCount= 4;
 	
 	//Anzahl Threads
 	private int threadIndex= 0;
@@ -75,23 +75,6 @@ public class Start implements Runnable{
 		disconnect();
 	}
 	
-	/*public void main(String[] args) throws SQLException {
-		connect();
-		
-		//mode==0 : Das ist der Modus für das Löschen und Erstellen der Tabellen.
-		if(mode==0) {
-			dropTables();
-			createTables();
-		}
-		//mode==1 : Das ist der Modus für das Füllen der Tabellen.
-		else if(mode==1) {
-			insertIntoNtpsDatabase(anzahl);
-		}
-		disconnect();
-	}
-	*/
-	
-	//Verbindungsaufbau mit dem Datenbankserver.
 	public void connect() {
 		try {
 			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
