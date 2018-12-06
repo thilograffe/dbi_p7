@@ -31,16 +31,19 @@ public class TaskClass implements Runnable{
 	}
 	
 	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) { //Konfigurationsfunktion zum Setzen der statischen Variablen und der Vorgenerierung der Zufallszahlen
+		//Statische Variablen setzen
 		n=anzahl;
 		batchSize=pbatchSize;
 		threadCount=anzahlThreads;
+		
+		//Vorgenerierung von Zufallszahlen
 		int m = n*(SCALEACC+SCALETEL);
 		zufallszahlen = new int[m];
 		for(int i=0;i<m;i++) {
 			zufallszahlen[i] = (int)(Math.random()*n)+1;
 		}
 	}
-	public void initialize() {
+	public void initialize() { //Löschen und Erstellen der Tabellen
 		connect();
 		dropTables();
 		createTables();
@@ -82,13 +85,13 @@ public class TaskClass implements Runnable{
 		disconnect();
 	}
 	
-	public void run(){
+	public void run(){ //Diese Funktion wird aufgerufen, wenn der zugehörige Thread gestartet wird
 		connect();
 		insertIntoNtpsDatabase();
 		disconnect();
 	}
 	
-	public void connect() {
+	public void connect() { //Verbindungsaufbau mit dem Datenbankserver.
 		try {
 			con = DriverManager.getConnection(address, "postgres", "datenbank");
 			con.setAutoCommit(false);
@@ -99,8 +102,7 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	//Verbindungsabbruch mit dem Datenbankserver.
-	public void disconnect() {
+	public void disconnect() { //Verbindungsabbruch mit dem Datenbankserver.
 		try {
 			con.close();
 			System.out.println("Disconnected!");
@@ -110,8 +112,8 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	//Tabellen werden angelegt.
-	public void createTables() {
+	
+	public void createTables() { //Tabellen werden angelegt.
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("create table branches\r\n" + 
@@ -155,8 +157,7 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	//Löschen der Datenbank. Bereits existierende Tabellen werden gelöscht. 
-	public void dropTables() {
+	public void dropTables() { //Löschen der Datenbank. Bereits existierende Tabellen werden gelöscht. 
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("drop table if exists history, accounts, branches, tellers;");
@@ -169,11 +170,12 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
+	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem gefüllt.
 	public void insertIntoNtpsDatabase() {
 		try {
 			PreparedStatement stmt=null;
-			if(threadIndex==0) {
+			
+			if(threadIndex==0) { //Nur der erste Thread erstellt diese Tabelle
 				//Tabelle branches wird gefüllt.
 				stmt = con.prepareStatement("insert into branches values (?,?,?,?)");
 			
@@ -188,6 +190,7 @@ public class TaskClass implements Runnable{
 				stmt.executeBatch();
 				stmt.close();
 			}
+			
 			//Tabelle accounts wird gefüllt.
 			stmt = con.prepareStatement(
 					"insert into accounts values (?, ?, ?, ?, ?)");
@@ -205,7 +208,8 @@ public class TaskClass implements Runnable{
 			}
 			stmt.close();
 			//Tabelle history wird nicht gefüllt.
-			if(threadIndex==0) {
+			
+			if(threadIndex==0) { //Nur der erste Thread erstellt diese Tabelle
 				//Tabelle tellers wird gefüllt.
 				stmt = con.prepareStatement("insert into tellers values (?, ?, ?, ?, ?)");
 			
@@ -225,8 +229,7 @@ public class TaskClass implements Runnable{
 			//Es wird einmal final ein commit (pro thread) ausgeführt.
 			con.commit();
 			
-			ControlClass.callback(threadIndex);
-			//Das Benchmark-Ergebnis wird ausgegeben.
+			ControlClass.callback(threadIndex); //Ein Callback wird an die ControlClass geschickt.
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
