@@ -8,26 +8,26 @@ import java.sql.PreparedStatement;
 
 public class TaskClass implements Runnable{
 	//Konstanten
-	static final int SCALEACC = 100000;	 //Faktor für die Tabelle accounts
-	static final int SCALETEL = 10;		 //Faktor für die Tabelle tellers
+	static private final int SCALEACC = 100000;	 //Faktor für die Tabelle accounts
+	static private final int SCALETEL = 10;		 //Faktor für die Tabelle tellers
+	static private final String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
+	//"jdbc:postgresql:postgres" = lokal
+	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	
 	//Statische Variablen
 	static private int n = 10; //Skalierungsfaktor
 	static private int batchSize = 10000; //Größe der Bündel
 	static private int threadCount= 4; //Anzahl Threads
 	static private int[] zufallszahlen; //Array für vorgenerierte Zufallszahlen von 1 bis n
-	static private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
-	//"jdbc:postgresql:postgres" = lokal
-	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	
 	//Instanzabhängige Variablen
 	private int threadIndex; //Anzahl Threads
 	private Connection con; //Verbindung zum DBMS
 	
-	TaskClass(int pthreadIndex){ //Konstruktur für Instanzen, die von Threads bearbeitet werden sollen
+	public TaskClass(int pthreadIndex){ //Konstruktur für Instanzen, die von Threads bearbeitet werden sollen
 		threadIndex=pthreadIndex;
 	}
-	TaskClass(){ //Konstruktur für Instanzen, die konfigurative Aufgaben haben
+	public TaskClass(){ //Konstruktur für Instanzen, die konfigurative Aufgaben haben
 	}
 	
 	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) { //Konfigurationsfunktion zum Setzen der statischen Variablen und der Vorgenerierung der Zufallszahlen

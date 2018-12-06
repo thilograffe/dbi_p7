@@ -26,12 +26,12 @@ public class ControlClass {
 				int bs = scan.nextInt();
 				System.out.println("Wie viele Threads?");
 				threadCount = scan.nextInt();
-				//Eingaben werden in die statischen variablen der TaskClass geschrieben
+				//Eingaben werden in die statischen Variablen der TaskClass geschrieben
 				TaskClass.configure(n,bs,threadCount);
 				
 				time=System.currentTimeMillis(); //Hier wird die Stoppuhr gestartet.
 				
-				//Treads werden erstellt
+				//Threads werden erstellt
 				for(int i=0;i<threadCount;i++) {
 					new Thread(new TaskClass(i)).start();
 				}
