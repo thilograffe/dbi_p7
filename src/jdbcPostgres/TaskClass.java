@@ -171,8 +171,6 @@ public class TaskClass implements Runnable{
 	
 	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
 	public void insertIntoNtpsDatabase() {
-		System.out.println("Thread "+threadIndex+" ist gestartet @"+System.currentTimeMillis());
-		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt=null;
 			if(threadIndex==0) {
@@ -229,8 +227,6 @@ public class TaskClass implements Runnable{
 			
 			ControlClass.callback(threadIndex);
 			//Das Benchmark-Ergebnis wird ausgegeben.
-			System.out.println("Thread "+threadIndex+" hat "+(System.currentTimeMillis()-start)+(" Millisekunden gebraucht."));
-			System.out.println("Thread "+threadIndex+" ist fertig @"+System.currentTimeMillis());
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
