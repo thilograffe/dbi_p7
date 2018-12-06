@@ -6,70 +6,80 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 
-public class Start implements Runnable{
-	private Connection con;
+public class TaskClass implements Runnable{
+	//Konstanten
 	static final int SCALEACC = 100000;	 //Faktor für die Tabelle accounts
 	static final int SCALETEL = 10;		 //Faktor für die Tabelle tellers
 	
-	//Skalierungsfaktor
-	static private int n = 10;
+	//Statische Variablen
+	static private int n = 10; //Skalierungsfaktor
+	static private int batchSize = 10000; //Größe der Bündel
+	static private int threadCount= 4; //Anzahl Threads
+	static private int[] zufallszahlen; //Array für vorgenerierte Zufallszahlen von 1 bis n
 	
-	//Größe der Bündel
-	static private int batchSize = 10000;
+	//Instanzabhängige Variablen
+	private int threadIndex; //Anzahl Threads
+	private Connection con; //Verbindung zum DBMS
 	
-	//Anzahl Threads
-	static private int threadCount= 4;
+	TaskClass(int pthreadIndex){
+		threadIndex=pthreadIndex;
+	}
+	TaskClass(){
+	}
 	
-	//Anzahl Threads
-	private int threadIndex= 0;
-	
-	Start(int mode, int anzahl, int pbatchSize, int anzahlThreads, int pthreadIndex){
+	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) {
 		n=anzahl;
 		batchSize=pbatchSize;
 		threadCount=anzahlThreads;
-		threadIndex=pthreadIndex;
-		
-		/*//mode==0 ist Modus für das Löschen und Erstellen der Tabellen.
-		if(mode==0) {
-			connect();
-			dropTables();
-			createTables();
-			//Table triggers werden ausgeschaltet
-			try {
-				PreparedStatement stmt = con.prepareStatement(
-					"ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE tellers DISABLE TRIGGER ALL;");
-				stmt.executeUpdate();
-				stmt.close();
-			}
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}*/
+		int m = n*(SCALEACC+SCALETEL);
+		zufallszahlen = new int[m];
+		for(int i=0;i<m;i++) {
+			zufallszahlen[i] = (int)(Math.random()*n)+1;
+		}
 	}
 	public void initialize() {
 		connect();
 		dropTables();
 		createTables();
-		//Table triggers werden ausgeschaltet
-		try {
-			PreparedStatement stmt = con.prepareStatement(
-				"ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
-				"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
-				"ALTER TABLE tellers DISABLE TRIGGER ALL;");
-			stmt.executeUpdate();
-			stmt.close();
-			con.commit();
+		disconnect();
+	}
+	
+	public void setTableTriggers(boolean bool) {
+		connect();
+		if(bool) {
+			//Table triggers werden eingeschaltet
+			try {
+				Statement stmt = con.createStatement();
+				stmt.executeUpdate(	
+						"ALTER TABLE accounts ENABLE TRIGGER ALL;\r\n" + 
+						"ALTER TABLE branches ENABLE TRIGGER ALL;\r\n" + 
+						"ALTER TABLE tellers ENABLE TRIGGER ALL;");
+				stmt.close();
+				con.commit();
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
-		catch (SQLException e) {
-			e.printStackTrace();
+		else {
+			//Table triggers werden ausgeschaltet
+			try {
+				Statement stmt = con.createStatement();
+				stmt.executeUpdate(
+						"ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
+						"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
+						"ALTER TABLE tellers DISABLE TRIGGER ALL;");
+				stmt.close();
+				con.commit();
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		disconnect();
 	}
 	
 	public void run(){
-		System.out.println("Thread "+threadIndex+" ist wirklich gestartet.");
 		connect();
 		insertIntoNtpsDatabase();
 		disconnect();
@@ -97,7 +107,7 @@ public class Start implements Runnable{
 		}
 	}
 	
-	//Inizialisierung der Datenbank. Tabellen werden angelegt.
+	//Tabellen werden angelegt.
 	public void createTables() {
 		try {
 			Statement stmt = con.createStatement();
@@ -158,6 +168,7 @@ public class Start implements Runnable{
 	
 	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem erzeugt. Der Skalierungsfaktor wird als Parameter übergeben.
 	public void insertIntoNtpsDatabase() {
+		System.out.println("Thread "+threadIndex+" ist gestartet @"+System.currentTimeMillis());
 		long start = System.currentTimeMillis();
 		try {
 			PreparedStatement stmt=null;
@@ -209,28 +220,17 @@ public class Start implements Runnable{
 				stmt.executeBatch();
 				stmt.close();
 			
-				//Table triggers werden wieder eingeschaltet
-				/*stmt = con.prepareStatement(
-					"ALTER TABLE accounts ENABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE branches ENABLE TRIGGER ALL;\r\n" + 
-					"ALTER TABLE tellers ENABLE TRIGGER ALL;");
-				stmt.executeUpdate();
-				stmt.close();
-				*/
 			}
-				
-			//Es wird einmal final ein commit ausgeführt.
+			//Es wird einmal final ein commit (pro thread) ausgeführt.
 			con.commit();
 			
+			ControlClass.callback(threadIndex);
 			//Das Benchmark-Ergebnis wird ausgegeben.
+			System.out.println("Thread "+threadIndex+" hat "+(System.currentTimeMillis()-start)+(" Millisekunden gebraucht."));
 			System.out.println("Thread "+threadIndex+" ist fertig @"+System.currentTimeMillis());
-			System.out.println(System.currentTimeMillis() - start);
-			
-			
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-
 }
