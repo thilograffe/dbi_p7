@@ -16,6 +16,9 @@ public class TaskClass implements Runnable{
 	static private int batchSize = 10000; //Größe der Bündel
 	static private int threadCount= 4; //Anzahl Threads
 	static private int[] zufallszahlen; //Array für vorgenerierte Zufallszahlen von 1 bis n
+	static private String address = "jdbc:postgresql:postgres";
+	//"jdbc:postgresql:postgres" = lokal
+	//"jdbc:postgresql:postgres" = remote
 	
 	//Instanzabhängige Variablen
 	private int threadIndex; //Anzahl Threads
@@ -87,7 +90,7 @@ public class TaskClass implements Runnable{
 	
 	public void connect() {
 		try {
-			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
+			con = DriverManager.getConnection(address, "postgres", "datenbank");
 			con.setAutoCommit(false);
 			System.out.println("Verbunden!");
 		}
