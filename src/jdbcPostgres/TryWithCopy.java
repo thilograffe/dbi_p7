@@ -25,6 +25,7 @@ public class TryWithCopy {
 		connect();
 		dropTables();
 		createTables();
+		disableTriggers();
 		int n = 50;
 		try {
 			long start = System.currentTimeMillis();
@@ -51,6 +52,21 @@ public class TryWithCopy {
 		System.out.println("fertig");
 	}
 	
+	private void disableTriggers() {
+		try {
+			Statement stmt = con.createStatement();
+			stmt.executeUpdate("ALTER TABLE accounts DISABLE TRIGGER ALL;\r\n" + 
+								"ALTER TABLE branches DISABLE TRIGGER ALL;\r\n" + 
+								"ALTER TABLE tellers DISABLE TRIGGER ALL;");
+			con.commit();
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 	public void connect() {
 		try {
 			con = DriverManager.getConnection("jdbc:postgresql:postgres", "postgres", "datenbank");
