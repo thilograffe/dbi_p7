@@ -24,13 +24,13 @@ public class TaskClass implements Runnable{
 	private int threadIndex; //Anzahl Threads
 	private Connection con; //Verbindung zum DBMS
 	
-	TaskClass(int pthreadIndex){
+	TaskClass(int pthreadIndex){ //Konstruktur für Instanzen, die von Threads bearbeitet werden sollen
 		threadIndex=pthreadIndex;
 	}
-	TaskClass(){
+	TaskClass(){ //Konstruktur für Instanzen, die konfigurative Aufgaben haben
 	}
 	
-	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) {
+	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) { //Konfigurationsfunktion zum Setzen der statischen Variablen und der Vorgenerierung der Zufallszahlen
 		n=anzahl;
 		batchSize=pbatchSize;
 		threadCount=anzahlThreads;
@@ -197,7 +197,7 @@ public class TaskClass implements Runnable{
 					stmt.setInt(1, i*batchSize+j+(threadIndex*(SCALEACC*n/threadCount))+1);
 					stmt.setString(2, "AutomobileAutomobile");
 					stmt.setInt(3, 0);
-					stmt.setInt(4, (int)(Math.random()*n)+1);
+					stmt.setInt(4, zufallszahlen[i*batchSize+j+(threadIndex*(SCALEACC*n/threadCount))]);
 					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 					stmt.addBatch();
 				}
@@ -213,7 +213,7 @@ public class TaskClass implements Runnable{
 					stmt.setInt(1, i);
 					stmt.setString(2, "AutomobileAutomobile");
 					stmt.setInt(3, 0);
-					stmt.setInt(4, (int)(Math.random()*n)+1);
+					stmt.setInt(4, zufallszahlen[n*SCALEACC+i-1]);
 					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 					stmt.addBatch();
 				}
