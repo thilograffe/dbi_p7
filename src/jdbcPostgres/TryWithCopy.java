@@ -26,7 +26,7 @@ public class TryWithCopy {
 		dropTables();
 		createTables();
 		disableTriggers();
-		int n = 50;
+		int n = 10;
 		try {
 			long start = System.currentTimeMillis();
 			createAccounts(n);
@@ -44,7 +44,6 @@ public class TryWithCopy {
 			mgr.copyIn("copy tellers from stdin delimiter ',' CSV header",in);
 			
 			System.out.println(System.currentTimeMillis()-start);
-			//createBranches(10);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
