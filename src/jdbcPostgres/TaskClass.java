@@ -16,9 +16,9 @@ public class TaskClass implements Runnable{
 	static private int batchSize = 10000; //Größe der Bündel
 	static private int threadCount= 4; //Anzahl Threads
 	static private int[] zufallszahlen; //Array für vorgenerierte Zufallszahlen von 1 bis n
-	static private String address = "jdbc:postgresql:postgres";
+	static private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
 	//"jdbc:postgresql:postgres" = lokal
-	//"jdbc:postgresql:postgres" = remote
+	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	
 	//Instanzabhängige Variablen
 	private int threadIndex; //Anzahl Threads
