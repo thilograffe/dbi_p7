@@ -19,12 +19,11 @@ public class LoadDriver implements Runnable {
 	@Override
 	public void run() {
 		connect();
-		try {
-			System.out.println(analyse(100000));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 600000; ) {
+			
 		}
+		
 		disconnect();
 	}
 	
