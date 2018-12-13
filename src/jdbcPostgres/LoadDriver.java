@@ -8,19 +8,16 @@ import java.sql.Statement;
 
 public class LoadDriver implements Runnable {
 	Connection con;
-	static final private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
+	static final private String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
-
-	public static void main(String[] args) {
-		new LoadDriver().run();
-	}
 	
 	@Override
 	public void run() {
 		connect();
 		
-		for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 600000; ) {
+		//erstmal nur 1 Sekunde (=> 1000ms) zum Test
+		for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 1000; ) {
 			
 		}
 		

@@ -2,12 +2,11 @@ package jdbcPostgres;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ControlLoadDrivers {
-	static private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
+	static private String address = "jdbc:postgresql:postgres";
 	private static Connection con;
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
@@ -16,8 +15,11 @@ public class ControlLoadDrivers {
 		connect();
 		deleteHistory();
 		disconnect();
-		LoadDriver ld1 = new LoadDriver();
-
+		new Thread(new LoadDriver()).start();
+		new Thread(new LoadDriver()).start();
+		new Thread(new LoadDriver()).start();
+		new Thread(new LoadDriver()).start();
+		new Thread(new LoadDriver()).start();
 	}
 	
 	private static void deleteHistory() {
@@ -27,7 +29,8 @@ public class ControlLoadDrivers {
 			stmt.close();
 			
 			stmt = con.createStatement();
-			stmt.executeUpdate("create table history\r\n" + 
+			stmt.executeUpdate(
+					"create table history\r\n" + 
 					"( accid int not null,\r\n" + 
 					" tellerid int not null,\r\n" + 
 					" delta int not null,\r\n" + 
@@ -39,6 +42,7 @@ public class ControlLoadDrivers {
 					" foreign key (branchid) references branches ); ");
 			stmt.close();
 			con.commit();
+			System.out.println("Dropped history-table and immediately created a new one.");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
