@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 public class LoadDriver implements Runnable {
 	Connection con;
-	static private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
+	static final private String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 
