@@ -15,7 +15,7 @@ public class LoadDriver implements Runnable {
 	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
 	 OfInt newBranchId = new Random().ints(1,100).iterator();
 	 OfInt newDelta = new Random().ints(1,10000).iterator();
-	static final private String address = "jdbc:postgresql:postgres";
+	static final String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 
