@@ -6,12 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ControlLoadDrivers {
-	static private String address = "jdbc:postgresql:postgres";
+	static private String address;
 	private static Connection con;
-	//"jdbc:postgresql:postgres" = lokal
-	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 
 	public static void main(String[] args) {
+		address=LoadDriver.address;
 		connect();
 		deleteHistory();
 		disconnect();
