@@ -5,23 +5,81 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Random;
+import java.util.PrimitiveIterator.OfInt;
 
 public class LoadDriver implements Runnable {
 	Connection con;
+	int nummer;
+	 OfInt newAccId = new Random().ints(1,10000000).iterator();
+	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
+	 OfInt newBranchId = new Random().ints(1,100).iterator();
+	 OfInt newDelta = new Random().ints(1,10000).iterator();
 	static final private String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
-	
+
+	LoadDriver(int nummer){
+		this.nummer = nummer;
+	}
 	@Override
 	public void run() {
 		connect();
 		
 		//erstmal nur 1 Sekunde (=> 1000ms) zum Test
-		for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 1000; ) {
+		int anzTrans = 0;
+		long timer = System.currentTimeMillis();
+		while(true) {
+			long aktZeit = System.currentTimeMillis() - timer;
+			if(aktZeit >600000) {
+				break;
+			}
+			neueTransaktion();
+			if(aktZeit>240000 && aktZeit<540000) {
+				anzTrans++;
+			}
 			
 		}
-		
+		/*for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 10000; ) {
+			neueTransaktion();
+		}*/
+		System.out.println(nummer+": "+(double)((double)(anzTrans)/600));
 		disconnect();
+	}
+	
+	/**
+	 * Erzeugt eine neue Transaktion.
+	 * Wählt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
+	 * und mit 0.15 analyse() aus.
+	 * Wartet anschließend 50ms. 
+	 */
+	private void neueTransaktion() {
+		double x = Math.random();
+		if(x<0.35) {
+			getBalance(newAccId.nextInt());
+		}
+		else if(x<0.85) {
+			try {
+				deposit(newAccId.next() , newTellerId.nextInt(), newBranchId.nextInt(), newDelta.nextInt());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else {
+			try {
+				analyse(newDelta.nextInt());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void connect() {
@@ -80,7 +138,13 @@ public class LoadDriver implements Runnable {
 				"WHERE branchid = " + branchId);
 		
 		rs.next();
-		balance = rs.getInt(1);
+		try {
+			balance = rs.getInt(1);
+			}catch (SQLException e) {
+				System.out.println("Fehler: "+ branchId+"hat balance:"+balance);
+				e.printStackTrace();
+			}
+		
 		balance += delta;
 		rs.close();
 		stmt.close();

@@ -15,11 +15,11 @@ public class ControlLoadDrivers {
 		connect();
 		deleteHistory();
 		disconnect();
-		new Thread(new LoadDriver()).start();
-		new Thread(new LoadDriver()).start();
-		new Thread(new LoadDriver()).start();
-		new Thread(new LoadDriver()).start();
-		new Thread(new LoadDriver()).start();
+		new Thread(new LoadDriver(1)).start();
+		new Thread(new LoadDriver(2)).start();
+		new Thread(new LoadDriver(3)).start();
+		new Thread(new LoadDriver(4)).start();
+		new Thread(new LoadDriver(5)).start();
 	}
 	
 	private static void deleteHistory() {
