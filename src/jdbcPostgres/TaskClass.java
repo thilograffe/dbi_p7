@@ -8,26 +8,26 @@ import java.sql.PreparedStatement;
 
 public class TaskClass implements Runnable{
 	//Konstanten
-	static private final int SCALEACC = 100000;	 //Faktor für die Tabelle accounts
-	static private final int SCALETEL = 10;		 //Faktor für die Tabelle tellers
-	static private final String address = "jdbc:postgresql:postgres";
+	static private final int SCALEACC = 100000;	 //Faktor fï¿½r die Tabelle accounts
+	static private final int SCALETEL = 10;		 //Faktor fï¿½r die Tabelle tellers
+	static private final String address = "jdbc:postgresql:dbi_p7";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	
 	//Statische Variablen
 	static private int n = 10; //Skalierungsfaktor
-	static private int batchSize = 10000; //Größe der Bündel
+	static private int batchSize = 10000; //Grï¿½ï¿½e der Bï¿½ndel
 	static private int threadCount= 4; //Anzahl Threads
-	static private int[] zufallszahlen; //Array für vorgenerierte Zufallszahlen von 1 bis n
+	static private int[] zufallszahlen; //Array fï¿½r vorgenerierte Zufallszahlen von 1 bis n
 	
-	//Instanzabhängige Variablen
+	//Instanzabhï¿½ngige Variablen
 	private int threadIndex; //Anzahl Threads
 	private Connection con; //Verbindung zum DBMS
 	
-	public TaskClass(int pthreadIndex){ //Konstruktur für Instanzen, die von Threads bearbeitet werden sollen
+	public TaskClass(int pthreadIndex){ //Konstruktur fï¿½r Instanzen, die von Threads bearbeitet werden sollen
 		threadIndex=pthreadIndex;
 	}
-	public TaskClass(){ //Konstruktur für Instanzen, die konfigurative Aufgaben haben
+	public TaskClass(){ //Konstruktur fï¿½r Instanzen, die konfigurative Aufgaben haben
 	}
 	
 	public static void configure(int anzahl, int pbatchSize, int anzahlThreads) { //Konfigurationsfunktion zum Setzen der statischen Variablen und der Vorgenerierung der Zufallszahlen
@@ -43,7 +43,7 @@ public class TaskClass implements Runnable{
 			zufallszahlen[i] = (int)(Math.random()*n)+1;
 		}
 	}
-	public void initialize() { //Löschen und Erstellen der Tabellen
+	public void initialize() { //Lï¿½schen und Erstellen der Tabellen
 		connect();
 		dropTables();
 		createTables();
@@ -85,7 +85,7 @@ public class TaskClass implements Runnable{
 		disconnect();
 	}
 	
-	public void run(){ //Diese Funktion wird aufgerufen, wenn der zugehörige Thread gestartet wird
+	public void run(){ //Diese Funktion wird aufgerufen, wenn der zugehï¿½rige Thread gestartet wird
 		connect();
 		insertIntoNtpsDatabase();
 		disconnect();
@@ -93,7 +93,7 @@ public class TaskClass implements Runnable{
 	
 	public void connect() { //Verbindungsaufbau mit dem Datenbankserver.
 		try {
-			con = DriverManager.getConnection(address, "postgres", "datenbank");
+			con = DriverManager.getConnection(address, "dbi", "dbi");
 			con.setAutoCommit(false);
 			System.out.println("Verbunden!");
 		}
@@ -157,7 +157,7 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	public void dropTables() { //Löschen der Datenbank. Bereits existierende Tabellen werden gelöscht. 
+	public void dropTables() { //Lï¿½schen der Datenbank. Bereits existierende Tabellen werden gelï¿½scht. 
 		try {
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate("drop table if exists history, accounts, branches, tellers;");
@@ -170,13 +170,13 @@ public class TaskClass implements Runnable{
 		}
 	}
 	
-	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem gefüllt.
+	//ntps-Datenbank wird auf dem Datenbankmanagmentsystem gefï¿½llt.
 	public void insertIntoNtpsDatabase() {
 		try {
 			PreparedStatement stmt=null;
 			
 			if(threadIndex==0) { //Nur der erste Thread erstellt diese Tabelle
-				//Tabelle branches wird gefüllt.
+				//Tabelle branches wird gefï¿½llt.
 				stmt = con.prepareStatement("insert into branches values (?,?,?,?)");
 			
 				for(int i = 1; i <= n; i++) {
@@ -186,12 +186,12 @@ public class TaskClass implements Runnable{
 					stmt.setString(4, "jlollduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 					stmt.addBatch();
 				}
-				//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
+				//Da in die Tabelle branches nicht mehr Tupel eingefï¿½gt werden als unsere willkï¿½rliche batchSize groï¿½ ist, wird nur ein Batch erstellt.
 				stmt.executeBatch();
 				stmt.close();
 			}
 			
-			//Tabelle accounts wird gefüllt.
+			//Tabelle accounts wird gefï¿½llt.
 			stmt = con.prepareStatement(
 					"insert into accounts values (?, ?, ?, ?, ?)");
 			
@@ -207,10 +207,10 @@ public class TaskClass implements Runnable{
 				stmt.executeBatch();
 			}
 			stmt.close();
-			//Tabelle history wird nicht gefüllt.
+			//Tabelle history wird nicht gefï¿½llt.
 			
 			if(threadIndex==0) { //Nur der erste Thread erstellt diese Tabelle
-				//Tabelle tellers wird gefüllt.
+				//Tabelle tellers wird gefï¿½llt.
 				stmt = con.prepareStatement("insert into tellers values (?, ?, ?, ?, ?)");
 			
 				for(int i = 1; i <= SCALETEL *n; i++) {
@@ -221,12 +221,12 @@ public class TaskClass implements Runnable{
 					stmt.setString(5, "lduvxjffonasgwrnwhwmejokonginaobpcuyfyboquqqgknqjtllvewiheodziqjkrkn");
 					stmt.addBatch();
 				}
-				//Da in die Tabelle branches nicht mehr Tupel eingefügt werden als unsere willkürliche batchSize groß ist, wird nur ein Batch erstellt.
+				//Da in die Tabelle branches nicht mehr Tupel eingefï¿½gt werden als unsere willkï¿½rliche batchSize groï¿½ ist, wird nur ein Batch erstellt.
 				stmt.executeBatch();
 				stmt.close();
 			
 			}
-			//Es wird einmal final ein commit (pro thread) ausgeführt.
+			//Es wird einmal final ein commit (pro thread) ausgefï¿½hrt.
 			con.commit();
 			
 			ControlClass.callback(threadIndex); //Ein Callback wird an die ControlClass geschickt.
