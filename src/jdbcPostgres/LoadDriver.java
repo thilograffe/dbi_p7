@@ -15,7 +15,7 @@ public class LoadDriver implements Runnable {
 	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
 	 OfInt newBranchId = new Random().ints(1,100).iterator();
 	 OfInt newDelta = new Random().ints(1,10000).iterator();
-	static final String address = "jdbc:postgresql:postgres";
+	static final String address = "jdbc:postgresql:dbi_p7";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 
@@ -86,6 +86,7 @@ public class LoadDriver implements Runnable {
 		try {
 			con = DriverManager.getConnection(address, "dbi", "dbi");
 			con.setAutoCommit(false);
+			con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 			System.out.println("Verbunden!");
 		}
 		catch(SQLException e) {
@@ -109,6 +110,7 @@ public class LoadDriver implements Runnable {
 		
 		try {
 			Statement stmt = con.createStatement();
+			stmt.setQueryTimeout(5);
 			ResultSet rs = stmt.executeQuery(
 					"SELECT balance " +
 					"FROM accounts " +
@@ -132,6 +134,7 @@ public class LoadDriver implements Runnable {
 		
 		//update branches
 		Statement stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		ResultSet rs = stmt.executeQuery(
 				"SELECT balance " +
 				"FROM branches " +
@@ -150,6 +153,7 @@ public class LoadDriver implements Runnable {
 		stmt.close();
 		
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		stmt.executeUpdate(
 				"UPDATE branches " + 
 				"SET balance = " + balance + " " +
@@ -160,6 +164,7 @@ public class LoadDriver implements Runnable {
 		
 		//update tellers
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		rs = stmt.executeQuery(
 				"SELECT balance " +
 				"FROM tellers " +
@@ -172,6 +177,7 @@ public class LoadDriver implements Runnable {
 		stmt.close();
 		
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		stmt.executeUpdate(
 				"UPDATE tellers " + 
 				"SET balance = " + balance + " " +
@@ -182,6 +188,7 @@ public class LoadDriver implements Runnable {
 		
 		//update accounts
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		rs = stmt.executeQuery(
 				"SELECT balance " +
 				"FROM accounts " +
@@ -194,6 +201,7 @@ public class LoadDriver implements Runnable {
 		stmt.close();
 		
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		stmt.executeUpdate(
 				"UPDATE accounts " + 
 				"SET balance = " + balance + " " +
@@ -204,6 +212,7 @@ public class LoadDriver implements Runnable {
 		
 		//insert into history
 		stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		stmt.executeUpdate(
 				"INSERT INTO history values(" + accId + ", " + tellerId +
 				", " + delta + ", " + branchId + ", " + balance + ", " +
@@ -220,6 +229,7 @@ public class LoadDriver implements Runnable {
 		int count = -1;
 		
 		Statement stmt = con.createStatement();
+		stmt.setQueryTimeout(5);
 		ResultSet rs = stmt.executeQuery(
 				"SELECT count(delta) " +
 				"FROM history " +
