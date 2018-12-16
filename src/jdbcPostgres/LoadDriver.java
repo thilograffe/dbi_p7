@@ -48,18 +48,15 @@ public class LoadDriver implements Runnable {
 			}
 			
 		}
-		/*for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 10000; ) {
-			neueTransaktion();
-		}*/
 		anzahlTx.add(anzTrans);
 		disconnect();
 	}
 	
 	/**
 	 * Erzeugt eine neue Transaktion.
-	 * Wählt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
+	 * Waehlt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
 	 * und mit 0.15 analyse() aus.
-	 * Wartet anschließend 50ms. 
+	 * Wartet anschliessend 50ms. 
 	 */
 	private void neueTransaktion() {
 		double x = Math.random();
