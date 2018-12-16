@@ -4,21 +4,41 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ControlLoadDrivers {
 	static private String address;
 	private static Connection con;
+	public List<Integer> anzahlTx;
 
 	public static void main(String[] args) {
+		new ControlLoadDrivers();
+	}
+	
+	private ControlLoadDrivers() {
+		anzahlTx = Collections.synchronizedList(new ArrayList<Integer>());
 		address=LoadDriver.address;
 		connect();
 		deleteHistory();
 		disconnect();
-		new Thread(new LoadDriver(1)).start();
-		new Thread(new LoadDriver(2)).start();
-		new Thread(new LoadDriver(3)).start();
-		new Thread(new LoadDriver(4)).start();
-		new Thread(new LoadDriver(5)).start();
+		for(int i = 1;i<=5;i++) {
+			new Thread(new LoadDriver(1, anzahlTx)).start();
+		}
+		try {
+			Thread.sleep(601000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		long gesTx = 0;
+		for(int x:anzahlTx) {
+			gesTx += x;
+		}
+		double txPerSc = gesTx/300;
+		System.out.println("Ges tx: " +gesTx+"\n Tx per sec: "+ txPerSc);
+		
 	}
 	
 	private static void deleteHistory() {

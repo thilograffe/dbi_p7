@@ -2,10 +2,12 @@ package jdbcPostgres;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
+import java.util.List;
 import java.util.PrimitiveIterator.OfInt;
 
 public class LoadDriver implements Runnable {
@@ -15,12 +17,18 @@ public class LoadDriver implements Runnable {
 	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
 	 OfInt newBranchId = new Random().ints(1,100).iterator();
 	 OfInt newDelta = new Random().ints(1,10000).iterator();
-	static final String address = "jdbc:postgresql:dbi_p7";
+	static final String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
+	PreparedStatement selectBranchBalance, selectAccBalance, selectTellBalance, selectCount;
+	//PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
+	PreparedStatement insertHistory;
+	List<Integer> anzahlTx;
 
-	LoadDriver(int nummer){
+	
+	LoadDriver(int nummer, List<Integer> anzahlTx){
 		this.nummer = nummer;
+		this.anzahlTx = anzahlTx;
 	}
 	@Override
 	public void run() {
@@ -43,15 +51,15 @@ public class LoadDriver implements Runnable {
 		/*for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 10000; ) {
 			neueTransaktion();
 		}*/
-		System.out.println(nummer+": "+(double)((double)(anzTrans)/300));
+		anzahlTx.add(anzTrans);
 		disconnect();
 	}
 	
 	/**
 	 * Erzeugt eine neue Transaktion.
-	 * Wï¿½hlt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
+	 * Wählt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
 	 * und mit 0.15 analyse() aus.
-	 * Wartet anschlieï¿½end 50ms. 
+	 * Wartet anschließend 50ms. 
 	 */
 	private void neueTransaktion() {
 		double x = Math.random();
@@ -69,7 +77,7 @@ public class LoadDriver implements Runnable {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		else {
@@ -100,6 +108,20 @@ public class LoadDriver implements Runnable {
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 			System.out.println("Verbunden!");
+			
+			
+			selectAccBalance = con.prepareStatement("SELECT balance , accid FROM accounts WHERE accid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+			selectBranchBalance = con.prepareStatement("SELECT balance, branchid FROM branches WHERE branchid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+			selectCount = con.prepareStatement("SELECT count(delta) FROM history WHERE delta = ? ");
+			
+			/*updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
+			updateBranchBalance = con.prepareStatement("UPDATE branches SET balance = ? WHERE branchid = ?");
+			updateTellBalance = con.prepareStatement("UPDATE tellers SET balance = ? WHERE tellerid = ?");
+			*/
+			insertHistory = con.prepareStatement("INSERT INTO history values(?, ?, ?, ?, ?, " +
+				"'Lorem ipsum dolor sit amet, co')");
+			
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
@@ -109,6 +131,7 @@ public class LoadDriver implements Runnable {
 	//Verbindungsabbruch mit dem Datenbankserver.
 	public void disconnect() {
 		try {
+			
 			con.close();
 			System.out.println("Disconnected!");
 		}
@@ -121,17 +144,12 @@ public class LoadDriver implements Runnable {
 		int balance = -1;
 		
 		try {
-			Statement stmt = con.createStatement();
-			stmt.setQueryTimeout(5);
-			ResultSet rs = stmt.executeQuery(
-					"SELECT balance " +
-					"FROM accounts " +
-					"WHERE accid = " + accId);
-			
+			selectAccBalance.setInt(1, accId);
+			ResultSet rs = selectAccBalance.executeQuery();
 			rs.next();
 			balance = rs.getInt(1);
 			rs.close();
-			stmt.close();
+			
 			con.commit();
 		}
 		catch (SQLException e) {
@@ -151,92 +169,57 @@ public class LoadDriver implements Runnable {
 		int balance = -1;
 		
 		//update branches
-		Statement stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		ResultSet rs = stmt.executeQuery(
-				"SELECT balance " +
-				"FROM branches " +
-				"WHERE branchid = " + branchId);
+		selectBranchBalance.setInt(1, branchId);
+		ResultSet rs = selectBranchBalance.executeQuery();
 		
 		rs.next();
-		try {
-			balance = rs.getInt(1);
-			}catch (SQLException e) {
-				System.out.println("Fehler: "+ branchId+"hat balance:"+balance);
-				e.printStackTrace();
-			}
-		
-		balance += delta;
+		balance = rs.getInt(1);
+		//System.out.println("BranchId: "+branchId+"\n old Balance: "+ rs.getInt(1)+"\n delta: "+delta);
+		//balance += delta;
+		rs.updateInt(1, balance + delta);
+		rs.updateRow();
 		rs.close();
-		stmt.close();
 		
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		stmt.executeUpdate(
-				"UPDATE branches " + 
-				"SET balance = " + balance + " " +
-				"WHERE branchid = " + branchId);
-		
-		
-		stmt.close();
+		/*updateBranchBalance.setInt(1, balance);
+		updateBranchBalance.setInt(2, branchId);
+		updateBranchBalance.executeUpdate();*/
 		
 		//update tellers
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		rs = stmt.executeQuery(
-				"SELECT balance " +
-				"FROM tellers " +
-				"WHERE tellerid = " + tellerId);
+		selectTellBalance.setInt(1, tellerId);
+		rs = selectTellBalance.executeQuery();
 		
 		rs.next();
 		balance = rs.getInt(1);
-		balance += delta;
+		rs.updateInt(1, balance+delta);
+		//balance += delta;
 		rs.close();
-		stmt.close();
 		
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		stmt.executeUpdate(
-				"UPDATE tellers " + 
-				"SET balance = " + balance + " " +
-				"WHERE tellerid = " + tellerId);
-		
-		
-		stmt.close();
+		/*updateTellBalance.setInt(1, balance);
+		updateTellBalance.setInt(2, tellerId);
+		updateTellBalance.executeUpdate();*/
 		
 		//update accounts
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		rs = stmt.executeQuery(
-				"SELECT balance " +
-				"FROM accounts " +
-				"WHERE accid = " + accId);
+		selectAccBalance.setInt(1, accId);
+		rs = selectAccBalance.executeQuery();
 		
 		rs.next();
 		balance = rs.getInt(1);
-		balance += delta;
+		//balance += delta;
+		rs.updateInt(1, balance+delta);
+		rs.updateRow();
 		rs.close();
-		stmt.close();
 		
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		stmt.executeUpdate(
-				"UPDATE accounts " + 
-				"SET balance = " + balance + " " +
-				"WHERE accid = " + accId);
-		
-		
-		stmt.close();
+		/*updateAccBalance.setInt(1, balance);
+		updateAccBalance.setInt(2, accId);
+		updateAccBalance.executeUpdate();*/
 		
 		//insert into history
-		stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		stmt.executeUpdate(
-				"INSERT INTO history values(" + accId + ", " + tellerId +
-				", " + delta + ", " + branchId + ", " + balance + ", " +
-				"'Lorem ipsum dolor sit amet, co')");
-		
-		stmt.close();
+		insertHistory.setInt(1, accId);
+		insertHistory.setInt(2, tellerId);
+		insertHistory.setInt(3, delta);
+		insertHistory.setInt(4, branchId);
+		insertHistory.setInt(5, balance);
+		insertHistory.executeUpdate();
 		
 		con.commit();
 		
@@ -246,18 +229,12 @@ public class LoadDriver implements Runnable {
 	public int analyse(int delta) throws SQLException {
 		int count = -1;
 		
-		Statement stmt = con.createStatement();
-		stmt.setQueryTimeout(5);
-		ResultSet rs = stmt.executeQuery(
-				"SELECT count(delta) " +
-				"FROM history " +
-				"WHERE delta = " + delta);
-		
+		selectCount.setInt(1, delta);
+		ResultSet rs = selectCount.executeQuery();
 		rs.next();
 		count = rs.getInt(1);
 		
 		rs.close();
-		stmt.close();
 		
 		con.commit();
 		
