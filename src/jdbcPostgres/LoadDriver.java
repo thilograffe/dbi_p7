@@ -15,7 +15,7 @@ public class LoadDriver implements Runnable {
 	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
 	 OfInt newBranchId = new Random().ints(1,100).iterator();
 	 OfInt newDelta = new Random().ints(1,10000).iterator();
-	static final String address = "jdbc:postgresql:dbi_p7";
+	static final String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 
@@ -40,18 +40,16 @@ public class LoadDriver implements Runnable {
 			}
 			
 		}
-		/*for (long timer = System.currentTimeMillis(); System.currentTimeMillis() - timer <= 10000; ) {
-			neueTransaktion();
-		}*/
+		
 		System.out.println(nummer+": "+(double)((double)(anzTrans)/300));
 		disconnect();
 	}
 	
 	/**
 	 * Erzeugt eine neue Transaktion.
-	 * W�hlt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
+	 * Waehlt mit einer Wahrscheinlichkeit von 0.35 getBalance(), mit 0.5 deposit()
 	 * und mit 0.15 analyse() aus.
-	 * Wartet anschlie�end 50ms. 
+	 * Wartet anschliessend 50ms. 
 	 */
 	private void neueTransaktion() {
 		double x = Math.random();

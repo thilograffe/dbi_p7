@@ -5,6 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * 
+ * @author Gruppe DBI32
+ * 
+ * Diese Klasse erzeugt in 5 Threads LoadDriver Instanzen, welche Last auf die Datenbank generieren.
+ *
+ */
 public class ControlLoadDrivers {
 	static private String address;
 	private static Connection con;
@@ -21,6 +28,9 @@ public class ControlLoadDrivers {
 		new Thread(new LoadDriver(5)).start();
 	}
 	
+	/**
+	 * entfernt zu Beginn jeder Messung die history-Tabelle und fügt sie sofort wieder ein
+	 */
 	private static void deleteHistory() {
 		try {
 			Statement stmt = con.createStatement();
@@ -48,6 +58,9 @@ public class ControlLoadDrivers {
 		}
 	}
 
+	/**
+	 * Verbindungsaufbau mit dem Datenbankserver
+	 */
 	public static void connect() {
 		try {
 			con = DriverManager.getConnection(address, "dbi", "dbi");
@@ -59,7 +72,9 @@ public class ControlLoadDrivers {
 		}
 	}
 	
-	//Verbindungsabbruch mit dem Datenbankserver.
+	/**
+	 * Verbindungsabbruch mit dem Datenbankserver
+	 */
 	public static void disconnect() {
 		try {
 			con.close();
