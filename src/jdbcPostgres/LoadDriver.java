@@ -63,6 +63,12 @@ public class LoadDriver implements Runnable {
 				deposit(newAccId.next() , newTellerId.nextInt(), newBranchId.nextInt(), newDelta.nextInt());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
+				try {
+					con.rollback();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				e.printStackTrace();
 			}
 		}
@@ -71,6 +77,12 @@ public class LoadDriver implements Runnable {
 				analyse(newDelta.nextInt());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
+				try {
+					con.rollback();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				e.printStackTrace();
 			}
 		}
@@ -123,6 +135,12 @@ public class LoadDriver implements Runnable {
 			con.commit();
 		}
 		catch (SQLException e) {
+			try {
+				con.rollback();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		
