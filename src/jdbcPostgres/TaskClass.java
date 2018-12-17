@@ -10,7 +10,7 @@ public class TaskClass implements Runnable{
 	//Konstanten
 	static private final int SCALEACC = 100000;	 //Faktor f�r die Tabelle accounts
 	static private final int SCALETEL = 10;		 //Faktor f�r die Tabelle tellers
-	static private final String address = "jdbc:postgresql:postgres";
+	static private final String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	
