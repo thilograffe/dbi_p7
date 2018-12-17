@@ -30,6 +30,7 @@ public class ControlLoadDrivers {
 		connect();
 		deleteHistory();
 		disconnect();
+		
 		for(int i = 1;i<=5;i++) {
 			new Thread(new LoadDriver(1, anzahlTx)).start();
 		}
@@ -40,6 +41,23 @@ public class ControlLoadDrivers {
 			e.printStackTrace();
 		}
 		long gesTx = 0;
+		
+		while (anzahlTx.isEmpty()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		for(int x:anzahlTx) {
 			gesTx += x;
 		}
