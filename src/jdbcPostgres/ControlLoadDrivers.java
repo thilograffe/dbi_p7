@@ -34,7 +34,7 @@ public class ControlLoadDrivers {
 			new Thread(new LoadDriver(1, anzahlTx)).start();
 		}
 		try {
-			Thread.sleep(601000);
+			Thread.sleep(605000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
