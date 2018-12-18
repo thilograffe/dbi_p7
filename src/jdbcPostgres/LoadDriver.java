@@ -17,11 +17,11 @@ public class LoadDriver implements Runnable {
 	 OfInt newTellerId =  new Random().ints(1,1000).iterator();
 	 OfInt newBranchId = new Random().ints(1,100).iterator();
 	 OfInt newDelta = new Random().ints(1,10000).iterator();
-	static final String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
+	static final String address = "jdbc:postgresql:postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	PreparedStatement selectBranchBalance, selectAccBalance, selectTellBalance, selectCount;
-	//PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
+	PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
 	PreparedStatement insertHistory;
 	List<Integer> anzahlTx;
 
@@ -107,15 +107,15 @@ public class LoadDriver implements Runnable {
 			System.out.println("Verbunden!");
 			
 			
-			selectAccBalance = con.prepareStatement("SELECT balance , accid FROM accounts WHERE accid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
-			selectBranchBalance = con.prepareStatement("SELECT balance, branchid FROM branches WHERE branchid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
-			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? FOR UPDATE",ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_UPDATABLE);
+			selectAccBalance = con.prepareStatement("SELECT balance , accid FROM accounts WHERE accid = ?");
+			selectBranchBalance = con.prepareStatement("SELECT balance, branchid FROM branches WHERE branchid = ? ");
+			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? ");
 			selectCount = con.prepareStatement("SELECT count(delta) FROM history WHERE delta = ? ");
 			
-			/*updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
+			updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
 			updateBranchBalance = con.prepareStatement("UPDATE branches SET balance = ? WHERE branchid = ?");
 			updateTellBalance = con.prepareStatement("UPDATE tellers SET balance = ? WHERE tellerid = ?");
-			*/
+			
 			insertHistory = con.prepareStatement("INSERT INTO history values(?, ?, ?, ?, ?, " +
 				"'Lorem ipsum dolor sit amet, co')");
 			
@@ -172,14 +172,14 @@ public class LoadDriver implements Runnable {
 		rs.next();
 		balance = rs.getInt(1);
 		//System.out.println("BranchId: "+branchId+"\n old Balance: "+ rs.getInt(1)+"\n delta: "+delta);
-		//balance += delta;
-		rs.updateInt(1, balance + delta);
-		rs.updateRow();
+		balance += delta;
+		//rs.updateInt(1, balance + delta);
+		//rs.updateRow();
 		rs.close();
 		
-		/*updateBranchBalance.setInt(1, balance);
+		updateBranchBalance.setInt(1, balance);
 		updateBranchBalance.setInt(2, branchId);
-		updateBranchBalance.executeUpdate();*/
+		updateBranchBalance.executeUpdate();
 		
 		//update tellers
 		selectTellBalance.setInt(1, tellerId);
@@ -187,13 +187,14 @@ public class LoadDriver implements Runnable {
 		
 		rs.next();
 		balance = rs.getInt(1);
-		rs.updateInt(1, balance+delta);
+		//rs.updateInt(1, balance+delta);
+		//rs.updateRow();
 		//balance += delta;
 		rs.close();
 		
-		/*updateTellBalance.setInt(1, balance);
+		updateTellBalance.setInt(1, balance);
 		updateTellBalance.setInt(2, tellerId);
-		updateTellBalance.executeUpdate();*/
+		updateTellBalance.executeUpdate();
 		
 		//update accounts
 		selectAccBalance.setInt(1, accId);
@@ -202,13 +203,13 @@ public class LoadDriver implements Runnable {
 		rs.next();
 		balance = rs.getInt(1);
 		//balance += delta;
-		rs.updateInt(1, balance+delta);
-		rs.updateRow();
+		//rs.updateInt(1, balance+delta);
+		//rs.updateRow();
 		rs.close();
 		
-		/*updateAccBalance.setInt(1, balance);
+		updateAccBalance.setInt(1, balance);
 		updateAccBalance.setInt(2, accId);
-		updateAccBalance.executeUpdate();*/
+		updateAccBalance.executeUpdate();
 		
 		//insert into history
 		insertHistory.setInt(1, accId);
