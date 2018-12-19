@@ -61,7 +61,7 @@ public class ControlLoadDrivers {
 		for(int x:anzahlTx) {
 			gesTx += x;
 		}
-		double txPerSc = gesTx/300;
+		double txPerSc = ((double)gesTx)/300;
 		System.out.println("Ges tx: " +gesTx+"\n Tx per sec: "+ txPerSc);
 		
 	}

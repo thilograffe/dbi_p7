@@ -1,11 +1,13 @@
 package jdbcPostgres;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Random;
 import java.util.List;
 import java.util.PrimitiveIterator.OfInt;
@@ -21,9 +23,21 @@ public class LoadDriver implements Runnable {
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	PreparedStatement selectBranchBalance, selectAccBalance, selectTellBalance, selectCount;
-	PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
-	PreparedStatement insertHistory;
+	//PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
+	//PreparedStatement insertHistory;
 	List<Integer> anzahlTx;
+
+	public static void main(String[] args) {
+		LoadDriver x = new LoadDriver(1, null);
+		x.connect();
+		try {
+			System.out.println(x.getBalance(20));
+			System.out.println(x.deposit(20, 10, 10, 20));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	
 	LoadDriver(int nummer, List<Integer> anzahlTx){
@@ -88,7 +102,7 @@ public class LoadDriver implements Runnable {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		try {
@@ -112,12 +126,12 @@ public class LoadDriver implements Runnable {
 			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? ");
 			selectCount = con.prepareStatement("SELECT count(delta) FROM history WHERE delta = ? ");
 			
-			updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
-			updateBranchBalance = con.prepareStatement("UPDATE branches SET balance = ? WHERE branchid = ?");
-			updateTellBalance = con.prepareStatement("UPDATE tellers SET balance = ? WHERE tellerid = ?");
+			//updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
+			//updateBranchBalance = con.prepareStatement("UPDATE branches SET balance = ? WHERE branchid = ?");
+			//updateTellBalance = con.prepareStatement("UPDATE tellers SET balance = ? WHERE tellerid = ?");
 			
-			insertHistory = con.prepareStatement("INSERT INTO history values(?, ?, ?, ?, ?, " +
-				"'Lorem ipsum dolor sit amet, co')");
+			//insertHistory = con.prepareStatement("INSERT INTO history values(?, ?, ?, ?, ?, " +
+			//	"'Lorem ipsum dolor sit amet, co')");
 			
 		}
 		catch(SQLException e) {
@@ -163,65 +177,15 @@ public class LoadDriver implements Runnable {
 	}
 	
 	public int deposit(int accId, int tellerId, int branchId, int delta) throws SQLException {
-		int balance = -1;
-		
-		//update branches
-		selectBranchBalance.setInt(1, branchId);
-		ResultSet rs = selectBranchBalance.executeQuery();
-		
-		rs.next();
-		balance = rs.getInt(1);
-		//System.out.println("BranchId: "+branchId+"\n old Balance: "+ rs.getInt(1)+"\n delta: "+delta);
-		balance += delta;
-		//rs.updateInt(1, balance + delta);
-		//rs.updateRow();
-		rs.close();
-		
-		updateBranchBalance.setInt(1, balance);
-		updateBranchBalance.setInt(2, branchId);
-		updateBranchBalance.executeUpdate();
-		
-		//update tellers
-		selectTellBalance.setInt(1, tellerId);
-		rs = selectTellBalance.executeQuery();
-		
-		rs.next();
-		balance = rs.getInt(1);
-		//rs.updateInt(1, balance+delta);
-		//rs.updateRow();
-		//balance += delta;
-		rs.close();
-		
-		updateTellBalance.setInt(1, balance);
-		updateTellBalance.setInt(2, tellerId);
-		updateTellBalance.executeUpdate();
-		
-		//update accounts
-		selectAccBalance.setInt(1, accId);
-		rs = selectAccBalance.executeQuery();
-		
-		rs.next();
-		balance = rs.getInt(1);
-		//balance += delta;
-		//rs.updateInt(1, balance+delta);
-		//rs.updateRow();
-		rs.close();
-		
-		updateAccBalance.setInt(1, balance);
-		updateAccBalance.setInt(2, accId);
-		updateAccBalance.executeUpdate();
-		
-		//insert into history
-		insertHistory.setInt(1, accId);
-		insertHistory.setInt(2, tellerId);
-		insertHistory.setInt(3, delta);
-		insertHistory.setInt(4, branchId);
-		insertHistory.setInt(5, balance);
-		insertHistory.executeUpdate();
-		
+		CallableStatement stmt = con.prepareCall("{call deposit(?,?,?,?)}");
+		stmt.setInt(1, accId);
+		stmt.setInt(2, tellerId);
+		stmt.setInt(3, branchId);
+		stmt.setInt(4, delta);
+		stmt.registerOutParameter(1, Types.INTEGER);
+		stmt.execute();
 		con.commit();
-		
-		return balance;
+		return stmt.getInt(1);
 	}
 	
 	public int analyse(int delta) throws SQLException {
