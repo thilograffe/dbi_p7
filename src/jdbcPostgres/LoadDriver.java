@@ -24,18 +24,6 @@ public class LoadDriver implements Runnable {
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
 	PreparedStatement selectAccBalance, selectCount;
 	List<Integer> anzahlTx;
-
-	public static void main(String[] args) {
-		LoadDriver x = new LoadDriver(1, null);
-		x.connect();
-		try {
-			System.out.println(x.getBalance(20));
-			System.out.println(x.deposit(20, 10, 10, 20));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	
 	LoadDriver(int nummer, List<Integer> anzahlTx){
 		this.nummer = nummer;
@@ -45,7 +33,6 @@ public class LoadDriver implements Runnable {
 	public void run() {
 		connect();
 		
-		//erstmal nur 1 Sekunde (=> 1000ms) zum Test
 		int anzTrans = 0;
 		long timer = System.currentTimeMillis();
 		while(true) {
