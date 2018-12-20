@@ -22,9 +22,7 @@ public class LoadDriver implements Runnable {
 	static final String address = "jdbc:postgresql://192.168.122.64:5432/postgres";
 	//"jdbc:postgresql:postgres" = lokal
 	//"jdbc:postgresql://192.168.122.64:5432/postgres" = remote
-	PreparedStatement selectBranchBalance, selectAccBalance, selectTellBalance, selectCount;
-	//PreparedStatement updateAccBalance, updateBranchBalance, updateTellBalance;
-	//PreparedStatement insertHistory;
+	PreparedStatement selectAccBalance, selectCount;
 	List<Integer> anzahlTx;
 
 	public static void main(String[] args) {
@@ -34,7 +32,6 @@ public class LoadDriver implements Runnable {
 			System.out.println(x.getBalance(20));
 			System.out.println(x.deposit(20, 10, 10, 20));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -81,34 +78,27 @@ public class LoadDriver implements Runnable {
 			try {
 				deposit(newAccId.next() , newTellerId.nextInt(), newBranchId.nextInt(), newDelta.nextInt());
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				try {
 					con.rollback();
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				//e.printStackTrace();
 			}
 		}
 		else {
 			try {
 				analyse(newDelta.nextInt());
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				try {
 					con.rollback();
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				//e.printStackTrace();
 			}
 		}
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -125,13 +115,6 @@ public class LoadDriver implements Runnable {
 			selectBranchBalance = con.prepareStatement("SELECT balance, branchid FROM branches WHERE branchid = ? ");
 			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? ");
 			selectCount = con.prepareStatement("SELECT count(delta) FROM history WHERE delta = ? ");
-			
-			//updateAccBalance = con.prepareStatement("UPDATE accounts SET balance = ? WHERE accid =?");
-			//updateBranchBalance = con.prepareStatement("UPDATE branches SET balance = ? WHERE branchid = ?");
-			//updateTellBalance = con.prepareStatement("UPDATE tellers SET balance = ? WHERE tellerid = ?");
-			
-			//insertHistory = con.prepareStatement("INSERT INTO history values(?, ?, ?, ?, ?, " +
-			//	"'Lorem ipsum dolor sit amet, co')");
 			
 		}
 		catch(SQLException e) {
@@ -167,7 +150,6 @@ public class LoadDriver implements Runnable {
 			try {
 				con.rollback();
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			e.printStackTrace();
