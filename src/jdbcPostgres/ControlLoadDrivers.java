@@ -12,7 +12,8 @@ import java.util.List;
  * 
  * @author Gruppe DBI32
  * 
- * Diese Klasse erzeugt in 5 Threads LoadDriver Instanzen, welche Last auf die Datenbank generieren.
+ * Diese Klasse erzeugt in 5 Threads LoadDriver Instanzen, welche Last auf die 
+ * Datenbank generieren.
  *
  */
 public class ControlLoadDrivers {
@@ -37,7 +38,6 @@ public class ControlLoadDrivers {
 		try {
 			Thread.sleep(605000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		long gesTx = 0;
@@ -46,7 +46,6 @@ public class ControlLoadDrivers {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -54,7 +53,6 @@ public class ControlLoadDrivers {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -67,7 +65,8 @@ public class ControlLoadDrivers {
 	}
 	
 	/**
-	 * entfernt zu Beginn jeder Messung die history-Tabelle und fügt sie sofort wieder ein
+	 * entfernt zu Beginn jeder Messung die history-Tabelle und fügt sie sofort 
+	 * wieder ein
 	 */
 	private static void deleteHistory() {
 		try {
@@ -89,7 +88,8 @@ public class ControlLoadDrivers {
 					" foreign key (branchid) references branches ); ");
 			stmt.close();
 			con.commit();
-			System.out.println("Dropped history-table and immediately created a new one.");
+			System.out.println("Dropped history-table and immediately created a "
+					+ "new one.");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
