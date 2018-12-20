@@ -114,7 +114,7 @@ public class LoadDriver implements Runnable {
 			con = DriverManager.getConnection(address, "dbi", "dbi");
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-			System.out.println("Verbunden!");
+			System.out.println(this.nummer + " Verbunden!");
 			
 			// Erstellen der PreparedStatements
 			selectAccBalance = con.prepareStatement("SELECT balance, accid FROM"
