@@ -32,8 +32,8 @@ public class ControlLoadDrivers {
 		deleteHistory();
 		disconnect();
 		
-		for(int i = 1;i<=5;i++) {
-			new Thread(new LoadDriver(1, anzahlTx)).start();
+		for(int i = 1; i<=5; i++) {
+			new Thread(new LoadDriver(i, anzahlTx)).start();
 		}
 		try {
 			Thread.sleep(605000);

@@ -138,7 +138,7 @@ public class LoadDriver implements Runnable {
 			selectCount.close();
 			
 			con.close();
-			System.out.println("Disconnected!");
+			System.out.println(this.nummer + " Disconnected!");
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
