@@ -36,7 +36,7 @@ public class LoadDriver implements Runnable {
 	// Liste für die Anazhl aller Transaktionen
 	List<Integer> anzahlTx;
 	
-	LoadDriver(int nummer, List<Integer> anzahlTx){
+	public LoadDriver(int nummer, List<Integer> anzahlTx){
 		this.nummer = nummer;
 		this.anzahlTx = anzahlTx;
 	}
