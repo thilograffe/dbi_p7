@@ -112,8 +112,6 @@ public class LoadDriver implements Runnable {
 			
 			
 			selectAccBalance = con.prepareStatement("SELECT balance , accid FROM accounts WHERE accid = ?");
-			selectBranchBalance = con.prepareStatement("SELECT balance, branchid FROM branches WHERE branchid = ? ");
-			selectTellBalance = con.prepareStatement("SELECT balance ,tellerid FROM tellers WHERE tellerid = ? ");
 			selectCount = con.prepareStatement("SELECT count(delta) FROM history WHERE delta = ? ");
 			
 		}
