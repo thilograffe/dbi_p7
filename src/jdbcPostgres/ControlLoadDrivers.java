@@ -26,22 +26,30 @@ public class ControlLoadDrivers {
 	}
 	
 	private ControlLoadDrivers() {
+		// Liste für die Gesamtanzahl der Transaktionen; Liste wird an jeden 
+		// LoadDriver übergeben
 		anzahlTx = Collections.synchronizedList(new ArrayList<Integer>());
 		address=LoadDriver.address;
 		connect();
 		deleteHistory();
 		disconnect();
 		
+		// Erstellen der 5-LoadDriver-Threads
 		for(int i = 1; i<=5; i++) {
 			new Thread(new LoadDriver(i, anzahlTx)).start();
 		}
+		
 		try {
+			// 5 Sekuden länger als 10 Minuten schlafen, da auf die Mess-
+			// ergebnisse aller Threads gewartet werden muss 
 			Thread.sleep(605000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 		long gesTx = 0;
 		
+		// erneutes Warten auf die Messergebnisse
 		while (anzahlTx.isEmpty()) {
 			try {
 				Thread.sleep(1000);
@@ -50,6 +58,7 @@ public class ControlLoadDrivers {
 			}
 		}
 		
+		// Warten aus Sicherheit, dass wirklich alle Messergebnisse da sind
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -59,14 +68,15 @@ public class ControlLoadDrivers {
 		for(int x:anzahlTx) {
 			gesTx += x;
 		}
+		// Berechnung der druchschnittlichen Transaktionen pro Sekunde
 		double txPerSc = ((double)gesTx)/300;
 		System.out.println("Ges tx: " +gesTx+"\n Tx per sec: "+ txPerSc);
 		
 	}
 	
 	/**
-	 * entfernt zu Beginn jeder Messung die history-Tabelle und fügt sie sofort 
-	 * wieder ein
+	 * entfernt zu Beginn jeder Messung die history-Tabelle und fügt sie 
+	 * sofort wieder ein
 	 */
 	private static void deleteHistory() {
 		try {
