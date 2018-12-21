@@ -98,8 +98,7 @@ public class ControlLoadDrivers {
 					" foreign key (branchid) references branches ); ");
 			stmt.close();
 			con.commit();
-			System.out.println("Dropped history-table and immediately created a "
-					+ "new one.");
+			System.out.println("History-Relation wurde geleert! ");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -113,7 +112,7 @@ public class ControlLoadDrivers {
 		try {
 			con = DriverManager.getConnection(address, "dbi", "dbi");
 			con.setAutoCommit(false);
-			System.out.println("Verbunden!");
+			System.out.println("Kontroll-Klasse verbunden!");
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
@@ -126,7 +125,8 @@ public class ControlLoadDrivers {
 	public static void disconnect() {
 		try {
 			con.close();
-			System.out.println("Disconnected!");
+			System.out.println("Kontroll-Klasse hat Verbindung zur Datenbank "
+					+ "getrennt und startet nun die 5 Threads!");
 		}
 		catch(SQLException e) {
 			e.printStackTrace();
